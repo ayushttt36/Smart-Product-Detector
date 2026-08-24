@@ -1,0 +1,1 @@
+CREATE POLICY "Signed in users can look up products" ON public.products FOR SELECT TO authenticated USING (true);
