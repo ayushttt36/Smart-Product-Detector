@@ -1,0 +1,12 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "LOVABLE_API_KEY",
+      "description": "Lovable AI Gateway API key (for the in-app chatbot). Obtain from the Lovable project settings → API keys. Optional — the app boots without it; only the chat assistant will be unavailable.",
+      "requiredAtBoot": false
+    }
+  ]
+}
