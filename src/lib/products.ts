@@ -83,7 +83,7 @@ export async function verifyCode(rawCode: string): Promise<VerificationResult> {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, dealer_id, product_name, product_code, unique_code, brand, manufacturing_date, registration_date, dealers(company_name)",
+      "id, dealer_id, product_name, product_code, unique_code, brand, manufacturing_date, registration_date, category, image_url, dealers(company_name)",
     )
     .or(`unique_code.eq.${code},product_code.eq.${code}`)
     .limit(1)
@@ -215,4 +215,145 @@ export function formatDateTime(value: string) {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+/* ---------------------------------------------------------------- images */
+
+/** Uploads a product photo into the signed-in dealer's own folder. */
+export async function uploadProductImage(file: File): Promise<string> {
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData?.user;
+  if (!user) throw new Error("Please sign in again to upload a photo.");
+
+  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage
+    .from("product-images")
+    .upload(path, file, { upsert: false, contentType: file.type });
+  if (error) throw new Error("The photo could not be uploaded. Please try a smaller image.");
+  return path;
+}
+
+/** Turns a stored photo path into a temporary viewable link. */
+export async function productImageUrl(path?: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data } = await supabase.storage
+    .from("product-images")
+    .createSignedUrl(path, 60 * 60 * 24 * 7);
+  return data?.signedUrl ?? null;
+}
+
+/* ------------------------------------------------------------ public page */
+
+export async function fetchPublicProduct(rawCode: string) {
+  const code = extractCode(rawCode);
+  return verifyCode(code);
+}
+
+/* --------------------------------------------------------------- bulk QR */
+
+export type BulkDraft = {
+  product_name: string;
+  product_code: string;
+  unique_code: string;
+  brand: string;
+  category: string | null;
+  manufacturing_date: string | null;
+};
+
+export async function bulkCreateProducts(drafts: BulkDraft[]): Promise<Product[]> {
+  const dealer = await ensureMyDealer();
+  const { data, error } = await supabase
+    .from("products")
+    .insert(drafts.map((d) => ({ ...d, dealer_id: dealer.id })))
+    .select("*");
+  if (error) {
+    if (error.code === "23505") throw new Error("One of the generated codes already exists. Try again.");
+    throw new Error("The batch could not be saved. Please try again.");
+  }
+  return (data ?? []) as Product[];
+}
+
+/* -------------------------------------------------------------- analytics */
+
+export type DealerAnalytics = {
+  totalScans: number;
+  verifiedScans: number;
+  failedScans: number;
+  perDay: { date: string; verified: number; failed: number }[];
+  perProduct: { id: string; name: string; scans: number }[];
+  alerts: { id: string; name: string; scans: number; reason: string }[];
+};
+
+export async function fetchDealerAnalytics(days = 14): Promise<DealerAnalytics> {
+  const products = await fetchMyProducts();
+  const ids = products.map((p) => p.id);
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+
+  const mine = ids.length
+    ? await supabase
+        .from("verification_history")
+        .select("id, product_id, verification_status, tested_at")
+        .in("product_id", ids)
+        .gte("tested_at", since)
+    : { data: [], error: null };
+
+  const codes = new Set(products.flatMap((p) => [p.unique_code, p.product_code]));
+  const failed = await supabase
+    .from("verification_history")
+    .select("id, scanned_code, verification_status, tested_at")
+    .eq("verification_status", "NOT_VERIFIED")
+    .gte("tested_at", since);
+
+  const mineRows = (mine.data ?? []) as {
+    product_id: string | null;
+    verification_status: string;
+    tested_at: string;
+  }[];
+  const failedRows = ((failed.data ?? []) as { scanned_code: string; tested_at: string }[]).filter(
+    (r) => codes.has(r.scanned_code),
+  );
+
+  const perDayMap = new Map<string, { verified: number; failed: number }>();
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    perDayMap.set(d, { verified: 0, failed: 0 });
+  }
+  for (const row of mineRows) {
+    const key = row.tested_at.slice(0, 10);
+    const entry = perDayMap.get(key);
+    if (entry) entry.verified += 1;
+  }
+  for (const row of failedRows) {
+    const key = row.tested_at.slice(0, 10);
+    const entry = perDayMap.get(key);
+    if (entry) entry.failed += 1;
+  }
+
+  const counts = new Map<string, number>();
+  for (const row of mineRows) {
+    if (!row.product_id) continue;
+    counts.set(row.product_id, (counts.get(row.product_id) ?? 0) + 1);
+  }
+
+  const perProduct = products
+    .map((p) => ({ id: p.id, name: p.product_name, scans: counts.get(p.id) ?? 0 }))
+    .sort((a, b) => b.scans - a.scans)
+    .slice(0, 8);
+
+  const alerts = perProduct
+    .filter((p) => p.scans >= 5)
+    .map((p) => ({
+      ...p,
+      reason: `Scanned ${p.scans} times in the last ${days} days — the QR code may have been copied.`,
+    }));
+
+  return {
+    totalScans: mineRows.length + failedRows.length,
+    verifiedScans: mineRows.length,
+    failedScans: failedRows.length,
+    perDay: [...perDayMap.entries()].map(([date, v]) => ({ date, ...v })),
+    perProduct,
+    alerts,
+  };
 }
