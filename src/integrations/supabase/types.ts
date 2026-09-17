@@ -14,7 +14,115 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      dealers: {
+        Row: {
+          address: string | null
+          company_name: string
+          created_at: string
+          dealer_name: string
+          email: string
+          id: string
+          phone: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          company_name: string
+          created_at?: string
+          dealer_name: string
+          email: string
+          id?: string
+          phone?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          company_name?: string
+          created_at?: string
+          dealer_name?: string
+          email?: string
+          id?: string
+          phone?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          brand: string
+          dealer_id: string
+          id: string
+          manufacturing_date: string | null
+          product_code: string
+          product_name: string
+          registration_date: string
+          unique_code: string
+        }
+        Insert: {
+          brand: string
+          dealer_id: string
+          id?: string
+          manufacturing_date?: string | null
+          product_code: string
+          product_name: string
+          registration_date?: string
+          unique_code: string
+        }
+        Update: {
+          brand?: string
+          dealer_id?: string
+          id?: string
+          manufacturing_date?: string | null
+          product_code?: string
+          product_name?: string
+          registration_date?: string
+          unique_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_history: {
+        Row: {
+          id: string
+          product_id: string | null
+          product_name: string | null
+          scanned_code: string
+          tested_at: string
+          verification_status: string
+        }
+        Insert: {
+          id?: string
+          product_id?: string | null
+          product_name?: string | null
+          scanned_code: string
+          tested_at?: string
+          verification_status: string
+        }
+        Update: {
+          id?: string
+          product_id?: string | null
+          product_name?: string | null
+          scanned_code?: string
+          tested_at?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
