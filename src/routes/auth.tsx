@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 import { useEffect, useState } from "react";
 import { Loader2, LogIn, ShieldCheck, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/auth")({
@@ -135,15 +134,20 @@ function AuthPage() {
 
   async function google() {
     setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
+    setBusy(true);
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin + "/auth" },
+      });
+      if (oauthError) {
+        setError(oauthError.message || "Google sign-in could not be completed. Please try again.");
+      }
+    } catch {
       setError("Google sign-in could not be completed. Please try again.");
-      return;
+    } finally {
+      setBusy(false);
     }
-    if (result.redirected) return;
-    navigate({ to: "/dealer", replace: true });
   }
 
   return (
@@ -264,7 +268,8 @@ function AuthPage() {
           </button>
         </form>
 
-        <button onClick={google} className="btn btn-ghost mt-3 w-full">
+        <button onClick={google} className="btn btn-ghost mt-3 w-full" disabled={busy}>
+          {busy ? <Loader2 className="size-4 animate-spin" /> : null}
           Continue with Google
         </button>
 
