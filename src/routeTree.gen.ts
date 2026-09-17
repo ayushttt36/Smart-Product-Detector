@@ -16,6 +16,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthenticatedDealerRouteImport } from './routes/_authenticated/dealer'
 import { Route as AuthenticatedMyProductsRouteImport } from './routes/_authenticated/my-products'
 import { Route as AuthenticatedRegisterProductRouteImport } from './routes/_authenticated/register-product'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedProductIdRouteImport } from './routes/_authenticated/product.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,11 @@ const AuthenticatedRegisterProductRoute =
     path: '/register-product',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedProductIdRoute = AuthenticatedProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/dealer': typeof AuthenticatedDealerRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/register-product': typeof AuthenticatedRegisterProductRoute
+  '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof AuthenticatedProductIdRoute
 }
 export interface FileRoutesByTo {
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/dealer': typeof AuthenticatedDealerRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/register-product': typeof AuthenticatedRegisterProductRoute
+  '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof AuthenticatedProductIdRoute
 }
 export interface FileRoutesById {
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/_authenticated/dealer': typeof AuthenticatedDealerRoute
   '/_authenticated/my-products': typeof AuthenticatedMyProductsRoute
   '/_authenticated/register-product': typeof AuthenticatedRegisterProductRoute
+  '/api/chat': typeof ApiChatRoute
   '/_authenticated/product/$id': typeof AuthenticatedProductIdRoute
 }
 export interface FileRouteTypes {
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/dealer'
     | '/my-products'
     | '/register-product'
+    | '/api/chat'
     | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/dealer'
     | '/my-products'
     | '/register-product'
+    | '/api/chat'
     | '/product/$id'
   id:
     | '__root__'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dealer'
     | '/_authenticated/my-products'
     | '/_authenticated/register-product'
+    | '/api/chat'
     | '/_authenticated/product/$id'
   fileRoutesById: FileRoutesById
 }
@@ -124,6 +136,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -177,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegisterProductRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/product/$id': {
       id: '/_authenticated/product/$id'
       path: '/product/$id'
@@ -209,6 +229,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
