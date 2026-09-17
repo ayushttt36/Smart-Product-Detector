@@ -13,10 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AuthenticatedBulkQrRouteImport } from './routes/_authenticated/bulk-qr'
 import { Route as AuthenticatedDealerRouteImport } from './routes/_authenticated/dealer'
 import { Route as AuthenticatedMyProductsRouteImport } from './routes/_authenticated/my-products'
 import { Route as AuthenticatedRegisterProductRouteImport } from './routes/_authenticated/register-product'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as AuthenticatedProductIdRouteImport } from './routes/_authenticated/product.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -37,6 +39,11 @@ const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBulkQrRoute = AuthenticatedBulkQrRouteImport.update({
+  id: '/bulk-qr',
+  path: '/bulk-qr',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDealerRoute = AuthenticatedDealerRouteImport.update({
   id: '/dealer',
@@ -59,6 +66,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyCodeRoute = VerifyCodeRouteImport.update({
+  id: '/verify/$code',
+  path: '/verify/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedProductIdRoute = AuthenticatedProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -69,20 +81,24 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/bulk-qr': typeof AuthenticatedBulkQrRoute
   '/dealer': typeof AuthenticatedDealerRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/register-product': typeof AuthenticatedRegisterProductRoute
   '/api/chat': typeof ApiChatRoute
+  '/verify/$code': typeof VerifyCodeRoute
   '/product/$id': typeof AuthenticatedProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/bulk-qr': typeof AuthenticatedBulkQrRoute
   '/dealer': typeof AuthenticatedDealerRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/register-product': typeof AuthenticatedRegisterProductRoute
   '/api/chat': typeof ApiChatRoute
+  '/verify/$code': typeof VerifyCodeRoute
   '/product/$id': typeof AuthenticatedProductIdRoute
 }
 export interface FileRoutesById {
@@ -91,10 +107,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/_authenticated/bulk-qr': typeof AuthenticatedBulkQrRoute
   '/_authenticated/dealer': typeof AuthenticatedDealerRoute
   '/_authenticated/my-products': typeof AuthenticatedMyProductsRoute
   '/_authenticated/register-product': typeof AuthenticatedRegisterProductRoute
   '/api/chat': typeof ApiChatRoute
+  '/verify/$code': typeof VerifyCodeRoute
   '/_authenticated/product/$id': typeof AuthenticatedProductIdRoute
 }
 export interface FileRouteTypes {
@@ -103,20 +121,24 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/bulk-qr'
     | '/dealer'
     | '/my-products'
     | '/register-product'
     | '/api/chat'
+    | '/verify/$code'
     | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/bulk-qr'
     | '/dealer'
     | '/my-products'
     | '/register-product'
     | '/api/chat'
+    | '/verify/$code'
     | '/product/$id'
   id:
     | '__root__'
@@ -124,10 +146,12 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/dashboard'
+    | '/_authenticated/bulk-qr'
     | '/_authenticated/dealer'
     | '/_authenticated/my-products'
     | '/_authenticated/register-product'
     | '/api/chat'
+    | '/verify/$code'
     | '/_authenticated/product/$id'
   fileRoutesById: FileRoutesById
 }
@@ -137,6 +161,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   ApiChatRoute: typeof ApiChatRoute
+  VerifyCodeRoute: typeof VerifyCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -169,6 +194,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/bulk-qr': {
+      id: '/_authenticated/bulk-qr'
+      path: '/bulk-qr'
+      fullPath: '/bulk-qr'
+      preLoaderRoute: typeof AuthenticatedBulkQrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dealer': {
       id: '/_authenticated/dealer'
       path: '/dealer'
@@ -197,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verify/$code': {
+      id: '/verify/$code'
+      path: '/verify/$code'
+      fullPath: '/verify/$code'
+      preLoaderRoute: typeof VerifyCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/product/$id': {
       id: '/_authenticated/product/$id'
       path: '/product/$id'
@@ -208,6 +247,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBulkQrRoute: typeof AuthenticatedBulkQrRoute
   AuthenticatedDealerRoute: typeof AuthenticatedDealerRoute
   AuthenticatedMyProductsRoute: typeof AuthenticatedMyProductsRoute
   AuthenticatedRegisterProductRoute: typeof AuthenticatedRegisterProductRoute
@@ -215,6 +255,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBulkQrRoute: AuthenticatedBulkQrRoute,
   AuthenticatedDealerRoute: AuthenticatedDealerRoute,
   AuthenticatedMyProductsRoute: AuthenticatedMyProductsRoute,
   AuthenticatedRegisterProductRoute: AuthenticatedRegisterProductRoute,
@@ -230,6 +271,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   ApiChatRoute: ApiChatRoute,
+  VerifyCodeRoute: VerifyCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
