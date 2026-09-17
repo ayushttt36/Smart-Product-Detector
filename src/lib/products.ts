@@ -9,7 +9,21 @@ export type Product = {
   brand: string;
   manufacturing_date: string | null;
   registration_date: string;
+  category: string | null;
+  image_url: string | null;
 };
+
+export const PRODUCT_CATEGORIES = [
+  "Electronics",
+  "Fashion & Apparel",
+  "Food & Beverage",
+  "Cosmetics",
+  "Pharmaceuticals",
+  "Automotive Parts",
+  "Home & Kitchen",
+  "Sports & Outdoors",
+  "Other",
+] as const;
 
 export type Dealer = {
   id: string;
