@@ -82,11 +82,16 @@ function AuthPage() {
           password: form.password,
         });
         if (signInError) {
-          setError(
-            signInError.message.toLowerCase().includes("invalid")
-              ? "Incorrect email or password. If you have not registered yet, create a dealer account."
-              : signInError.message,
-          );
+          const msg = signInError.message.toLowerCase();
+          if (msg.includes("email not confirmed")) {
+            setError(
+              "Your email hasn't been confirmed yet. Check your inbox (and spam folder) for the confirmation link, then try again.",
+            );
+          } else if (msg.includes("invalid")) {
+            setError("Incorrect email or password. If you have not registered yet, create a dealer account.");
+          } else {
+            setError(signInError.message);
+          }
           return;
         }
         router.invalidate();
