@@ -50,8 +50,10 @@ export type Database = {
       products: {
         Row: {
           brand: string
+          category: string | null
           dealer_id: string
           id: string
+          image_url: string | null
           manufacturing_date: string | null
           product_code: string
           product_name: string
@@ -60,8 +62,10 @@ export type Database = {
         }
         Insert: {
           brand: string
+          category?: string | null
           dealer_id: string
           id?: string
+          image_url?: string | null
           manufacturing_date?: string | null
           product_code: string
           product_name: string
@@ -70,8 +74,10 @@ export type Database = {
         }
         Update: {
           brand?: string
+          category?: string | null
           dealer_id?: string
           id?: string
+          image_url?: string | null
           manufacturing_date?: string | null
           product_code?: string
           product_name?: string
