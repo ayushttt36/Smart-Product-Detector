@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Navbar } from "../components/Navbar";
+import { ChatBot } from "../components/ChatBot";
 import { supabase } from "../integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -142,6 +143,7 @@ function RootComponent() {
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
         Smart Product Detector — Scan. Verify. Trust.
       </footer>
+      <ChatBot />
     </QueryClientProvider>
   );
 }
